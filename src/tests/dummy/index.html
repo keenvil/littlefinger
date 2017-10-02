@@ -1,0 +1,39 @@
+<html>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.js"></script>
+  <script src="../../../dist/littlefinger.js"></script>
+  <script>
+    class SecurityModule extends L.ApiModule {
+
+      /**
+       * Authenticates against Keenvil's API.
+       *
+       * @param {String} email
+       * @param {String} password
+       * @returns a promise object
+       */
+      auth(email, password) {
+        return this.adapter.save('auth', {
+          email,
+          password
+        });
+      }
+
+    }
+
+    const securityModule = new SecurityModule('security');
+    securityModule.adapter.apiConfig = {
+      getBaseUrl() {
+        return 'http://api.qa.keenvil.com:8080';
+      },
+      getApiKey() {
+        return 'key';
+      }
+    }
+    const Api = new L.ModuleRegistry();
+    Api.addModule(securityModule.name, securityModule);
+    Api
+      .getModule('security')
+      .auth('esteban@keenvil.com', '12345678')
+      .then(response => console.log(response));
+  </script>
+</html>

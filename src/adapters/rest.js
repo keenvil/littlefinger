@@ -1,7 +1,6 @@
 import Http from '../transport/http';
 import KeenvilApiError from '../exceptions/keenvilApiError';
-import merge from 'lodash/merge';
-import values from 'lodash/values';
+import _ from 'lodash';
 
 /**
  * Class to make HTTP Rest calls to Keenvil's API.
@@ -25,7 +24,7 @@ export default class Rest {
       operatingSystem: null,
       transport: new Http()
     };
-    const mergedConfig = merge(defaultConfig, config);
+    const mergedConfig = _.merge(defaultConfig, config);
 
     this.apiConfig = mergedConfig.apiConfig;
     this.communityId = mergedConfig.communityId;
@@ -57,8 +56,8 @@ export default class Rest {
   }
 
   isResponseSerializable(statusCode) {
-    return values(this.keenvilApiSuccessfulResponses).includes(statusCode) ||
-      values(this.keenvilApiErrors).includes(statusCode);
+    return _.values(this.keenvilApiSuccessfulResponses).includes(statusCode) ||
+      _.values(this.keenvilApiErrors).includes(statusCode);
   }
 
   isSessionExpired(status) {
