@@ -1,5 +1,5 @@
 {
-  "name": "littlefinger",
+  "name": "@keenvil/littlefinger",
   "version": "1.0.0-alpha",
   "description": "Keenvil API SDK for the Web and Native Apps.",
   "main": "index.js",
