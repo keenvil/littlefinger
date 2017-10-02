@@ -1,4 +1,4 @@
-import Rest from './adapters/rest';
+import Rest from '../adapters/rest';
 
 export default class ApiModule {
 
