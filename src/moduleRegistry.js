@@ -10,7 +10,7 @@ export default class ModuleRegistry {
     if (!this.modules.has(moduleName)) {
       this.modules.set(moduleName, moduleDefinition);
     } else {
-      throw new Error(`Littlefinger: there is already a module with named ${moduleName}`);
+      throw new Error(`Littlefinger: there is already a module with name ${moduleName}`);
     }
   }
 
