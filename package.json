@@ -2,7 +2,7 @@
   "name": "@keenvil/littlefinger",
   "version": "1.0.0-alpha",
   "description": "Keenvil API SDK for the Web and Native Apps.",
-  "main": "index.js",
+  "main": "dist/littlefinger.js",
   "scripts": {
     "precommit": "lint-staged",
     "test": "jest",

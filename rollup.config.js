@@ -5,9 +5,8 @@ export default {
   input: 'src/index.js',
   output: {
     file: 'dist/littlefinger.js',
-    format: 'umd'
+    format: 'es'
   },
-  name: 'L',
   plugins: [
     resolve({
       customResolveOptions: {
