@@ -6,9 +6,10 @@ export default class ApiModule {
 
   name = ''
 
-  constructor(name) {
+  constructor(name, apiConfig) {
     this.adapter = new Rest({
-      module: name
+      module: name,
+      apiConfig
     });
     this.name = name;
   }
