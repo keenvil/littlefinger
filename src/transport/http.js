@@ -35,7 +35,7 @@ export default class Http {
   }
 
   multipart(headers, url, file) {
-    let formData  = new FormData();
+    const formData  = new FormData();
     formData.append('file', file);
     return fetch(url, {
       method: 'POST',
