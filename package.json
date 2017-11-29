@@ -1,6 +1,6 @@
 {
   "name": "@keenvil/littlefinger",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0",
   "description": "Keenvil API SDK for the Web and Native Apps.",
   "main": "dist/littlefinger.js",
   "scripts": {

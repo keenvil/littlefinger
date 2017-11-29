@@ -33,4 +33,14 @@ export default class Http {
       headers: headers
     });
   }
+
+  multipart(headers, url, file) {
+    let formData  = new FormData();
+    formData.append('file', file);
+    return fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: formData
+    })
+  }
 }
