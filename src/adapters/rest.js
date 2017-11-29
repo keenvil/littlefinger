@@ -246,4 +246,22 @@ export default class Rest {
         return this.processResponse(response, isJsonResponse);
       });
   }
+
+  /**
+   * Uploads a file to the specified path
+   *
+   * @param {*} path uri for the upload endpoint
+   * @param {*} fileData form data to be uploaded
+   * @param {*} isJsonResponse sets if this response should be
+   *                           procesed as JSON
+   */
+  upload(path, fileData, isJsonResponse = true) {
+    const url = this.buildUrl(path);
+    const headers = this.getHeaders();
+    return this.transport
+      .multipart(headers, url, fileData)
+      .then(response => {
+        return this.processResponse(response, isJsonResponse);
+      });
+  }
 }
