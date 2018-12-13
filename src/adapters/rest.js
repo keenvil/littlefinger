@@ -1,6 +1,6 @@
 import Http from '../transport/http';
 import KeenvilApiError from '../exceptions/keenvilApiError';
-import _ from 'lodash';
+import { merge, values } from 'lodash';
 
 /**
  * Class to make HTTP Rest calls to Keenvil's API.
@@ -24,7 +24,7 @@ export default class Rest {
       operatingSystem: null,
       transport: new Http()
     };
-    const mergedConfig = _.merge(defaultConfig, config);
+    const mergedConfig = merge(defaultConfig, config);
 
     this.apiConfig = mergedConfig.apiConfig;
     this.communityId = mergedConfig.communityId;
@@ -46,7 +46,9 @@ export default class Rest {
     SESSION_EXPIRED: 401,
     ACCESS_FORBIDDEN: 403,
     RESOURCE_NOT_FOUND: 404,
+    CONFLICT: 409,
     ENTITY_NOT_FOUND: 412,
+    SESSION_NOT_VALID: 417,
     UNSUPPORTED_MEDIA_TYPE: 415,
     VALIDATION_ERROR: 422
   }
@@ -56,17 +58,64 @@ export default class Rest {
   }
 
   isResponseSerializable(statusCode) {
-    return _.values(this.keenvilApiSuccessfulResponses).includes(statusCode) ||
-      _.values(this.keenvilApiErrors).includes(statusCode);
+    return values(this.keenvilApiSuccessfulResponses).includes(statusCode)
+    || values(this.keenvilApiErrors).includes(statusCode);
   }
 
   isSessionExpired(status) {
     return status === this.keenvilApiErrors.SESSION_EXPIRED;
   }
 
+  hasPreconditionFailed(status) {
+    return status === this.keenvilApiErrors.ENTITY_NOT_FOUND;
+  }
+
+  isAccessTokenExpired(status) {
+    return status === this.keenvilApiErrors.SESSION_NOT_VALID;
+  }
+
+  notFound(status) {
+    return status === this.keenvilApiErrors.RESOURCE_NOT_FOUND;
+  }
+
+  isResourceAlreadyExists(status) {
+    return status === this.keenvilApiErrors.CONFLICT;
+  }
+
+  mapStatusToExceptionCode (status) {
+    if (this.isSessionExpired(status)) {
+      return 'sessionHasBeenExpired';
+    }
+    if (this.isAccessTokenExpired(status)) {
+      return 'tokenExpired';
+    }
+    if (this.hasPreconditionFailed(status)) {
+      return 'preconditionFailed';
+    }
+    if (this.notFound(status)) {
+      return 'notFound';
+    }
+    if (this.isResourceAlreadyExists(status)) {
+      return 'resourceAlreadyExists';
+    }
+  }
+
+  buildErrorItem(errorItem) {
+    if (errorItem.code == null) {
+      errorItem.code = this.mapStatusToExceptionCode(errorItem.httpStatus);
+    }
+    return errorItem;
+  }
+
   buildError(errorPayload) {
     let error = new KeenvilApiError();
-    error.apiErrors = errorPayload;
+    if (Array.isArray(errorPayload)) {
+      error.apiErrors = errorPayload.map(
+        errorItem => this.buildErrorItem(errorItem)
+      );
+    } else {
+      error.apiErrors = [this.buildErrorItem(errorPayload)];
+    }
     return error;
   }
 
@@ -80,14 +129,7 @@ export default class Rest {
     if (!response.ok && !this.isResponseSerializable(response.status)) {
       throw this.buildError([
         {
-          code: response.statusText ? response.statusText : response.status
-        }
-      ]);
-    }
-    if (this.isSessionExpired(response.status)) {
-      throw this.buildError([
-        {
-          code: 'sessionHasBeenExpired'
+          httpStatus: response.status || response.httpStatus
         }
       ]);
     }
@@ -96,8 +138,9 @@ export default class Rest {
       .then((unserializedResponse) => {
         if (!response.ok) {
           throw this.buildError(unserializedResponse);
+        } else {
+          return unserializedResponse;
         }
-        return unserializedResponse;
       });
   }
 

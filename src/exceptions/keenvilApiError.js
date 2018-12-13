@@ -1,8 +1,12 @@
 class KeenvilApiError extends Error {
-  
+
   constructor(...args) {
     super(...args)
-    Error.captureStackTrace(this, KeenvilApiError)
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, KeenvilApiError);
+    } else {
+      this.stack = (new Error(...args)).stack;
+    }
   }
 
   apiErrors = []

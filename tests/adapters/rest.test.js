@@ -1,4 +1,4 @@
-import Rest from '../../adapters/rest';
+import Rest from '../../src/adapters/rest';
 import authMock from '../__mocks__/authMock';
 
 const BASE_URL = 'a non null base url';
@@ -124,21 +124,21 @@ describe('Rest adapter', () => {
     });
 
     it('process an unauthorized response', () => {
-      expect.assertions(1);
+      expect.assertions(2);
 
       fetch.mockResponses([
         JSON.stringify([
           {
-            "httpStatus": 401,
-            "code": "unauthorized",
-            "title": "Unauthorized",
-            "detail": "Invalid credentials.",
+            "httpStatus": 417,
+            "code": "tokenExpired",
+            "title": "Authentication error",
+            "detail": "Token expired.",
             "source": "com.keenvil.security.service.AuthService:auth:56(AuthService.java)...",
-            "module": "security",
-            "uri": "/security/auth",
+            "module": null,
+            "uri": "/community/c/santacatalina/units",
             "httpMethod": "POST",
             "hostName": "api.qa.keenvil.com",
-            "localHostName": "172.17.0.7"
+            "localHostName": "192.168.0.132"
           }
         ]),
         {
@@ -151,13 +151,14 @@ describe('Rest adapter', () => {
         password: '12345678'
       })
       .catch((error) => {
-        expect(error.apiErrors[0].code).toBe('sessionHasBeenExpired');
+        expect(error.apiErrors[0].code).toBe('tokenExpired');
+        expect(error.apiErrors[0].httpStatus).toBe(417);
       });
 
     });
 
     it('process validation errors response', () => {
-      expect.assertions(1);
+      expect.assertions(2);
 
       fetch.mockResponses([
         JSON.stringify([
@@ -184,6 +185,7 @@ describe('Rest adapter', () => {
         password: '123'
       }).catch((error) => {
         expect(error.apiErrors[0].code).toBe('Size.loginRequest.password');
+        expect(error.apiErrors[0].httpStatus).toBe(422);
       });
 
     });
@@ -206,7 +208,7 @@ describe('Rest adapter', () => {
         email: 'test@keenvil.com',
         password: '12345678'
       }).catch((error) => {
-        expect(error.apiErrors[0].code).toBe(302);
+        expect(error.apiErrors[0].httpStatus).toBe(302);
       });
     });
 
@@ -228,7 +230,31 @@ describe('Rest adapter', () => {
         email: 'test@keenvil.com',
         password: '12345678'
       }).catch((error) => {
-        expect(error.apiErrors[0].code).toBe(500);
+        expect(error.apiErrors[0].httpStatus).toBe(500);
+      });
+    });
+
+    it('process an resource already exists error', () => {
+      expect.assertions(1);
+
+      fetch.mockResponses([
+        JSON.stringify([
+          {
+            "httpStatus": 409
+          }
+        ]),
+        {
+          status: 409
+        }
+      ]);
+
+      return adapter.save('units', {
+        lotNumber: 1,
+        unitNumber: 1,
+        status: 'TAKEN',
+        type: 'HOUSE'
+      }).catch((error) => {
+        expect(error.apiErrors[0].code).toBe('resourceAlreadyExists');
       });
     });
 

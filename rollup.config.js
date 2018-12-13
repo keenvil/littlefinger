@@ -14,7 +14,11 @@ export default {
       }
     }),
     babel({
-      exclude: 'node_modules/**'
+      exclude: 'node_modules/**',
+      babelrc: false,
+      presets: [['@babel/env', { modules: false }]],
+      plugins: ['@babel/external-helpers', '@babel/plugin-proposal-class-properties'],
+      externalHelpers: true
     })
   ],
   external: ['lodash']
