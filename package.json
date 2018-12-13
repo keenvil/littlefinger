@@ -10,7 +10,7 @@
   },
   "lint-staged": {
     "src/*.js": "node_modules/.bin/eslint",
-    "tests/*.js": "jest",
+    "tests/adapters/*.js": "jest",
     "*.js": [
       "git add"
     ]
