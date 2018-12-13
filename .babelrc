@@ -1,12 +1,8 @@
 {
   "presets": [
-    "stage-0",
-    [
-      "es2015",
-      {
-        "modules": false
-      }
-    ]
+    "@babel/preset-env"
   ],
-  "plugins": ["transform-class-properties", "external-helpers"]
+  "plugins": [
+    "@babel/plugin-proposal-class-properties"
+  ]
 }
